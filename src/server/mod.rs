@@ -48,11 +48,11 @@
 //! ```
 
 pub mod conn;
-mod tcp;
+#[cfg(feature = "runtime")] mod tcp;
 
 use std::fmt;
-use std::net::SocketAddr;
-use std::time::Duration;
+#[cfg(feature = "runtime")] use std::net::SocketAddr;
+#[cfg(feature = "runtime")] use std::time::Duration;
 
 use futures::{Future, Stream, Poll};
 use tokio_io::{AsyncRead, AsyncWrite};
@@ -62,8 +62,7 @@ use service::{NewService, Service};
 // Renamed `Http` as `Http_` for now so that people upgrading don't see an
 // error that `hyper::server::Http` is private...
 use self::conn::{Http as Http_, SpawnAll};
-//use self::hyper_service::HyperService;
-use self::tcp::{AddrIncoming};
+#[cfg(feature = "runtime")] use self::tcp::{AddrIncoming};
 
 /// A listening HTTP server.
 ///
@@ -94,6 +93,7 @@ impl<I> Server<I, ()> {
     }
 }
 
+#[cfg(feature = "runtime")]
 impl Server<AddrIncoming, ()> {
     /// Binds to the provided address, and returns a [`Builder`](Builder).
     ///
@@ -116,6 +116,7 @@ impl Server<AddrIncoming, ()> {
     }
 }
 
+#[cfg(feature = "runtime")]
 impl<S> Server<AddrIncoming, S> {
     /// Returns the local address that this server is bound to.
     pub fn local_addr(&self) -> SocketAddr {
@@ -215,6 +216,7 @@ impl<I> Builder<I> {
     }
 }
 
+#[cfg(feature = "runtime")]
 impl Builder<AddrIncoming> {
     /// Set whether TCP keepalive messages are enabled on accepted connections.
     ///

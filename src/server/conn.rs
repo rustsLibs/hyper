@@ -9,23 +9,22 @@
 //! higher-level [Server](super) API.
 
 use std::fmt;
-use std::net::SocketAddr;
+#[cfg(feature = "runtime")] use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
+#[cfg(feature = "runtime")] use std::time::Duration;
 
 use bytes::Bytes;
 use futures::{Async, Future, Poll, Stream};
 use futures::future::{Either, Executor};
 use tokio_io::{AsyncRead, AsyncWrite};
-//TODO: change these tokio:: to sub-crates
-use tokio::reactor::Handle;
+#[cfg(feature = "runtime")] use tokio_reactor::Handle;
 
 use common::Exec;
 use proto;
 use body::{Body, Payload};
 use service::{NewService, Service};
 
-pub use super::tcp::AddrIncoming;
+#[cfg(feature = "runtime")] pub use super::tcp::AddrIncoming;
 
 /// A lower-level configuration of the HTTP protocol.
 ///
@@ -252,6 +251,7 @@ impl Http {
     /// to accept connections. Each connection will be processed with the
     /// `new_service` object provided, creating a new service per
     /// connection.
+    #[cfg(feature = "runtime")]
     pub fn serve_addr<S, Bd>(&self, addr: &SocketAddr, new_service: S) -> ::Result<Serve<AddrIncoming, S>>
     where
         S: NewService<ReqBody=Body, ResBody=Bd>,
@@ -271,6 +271,7 @@ impl Http {
     /// to accept connections. Each connection will be processed with the
     /// `new_service` object provided, creating a new service per
     /// connection.
+    #[cfg(feature = "runtime")]
     pub fn serve_addr_handle<S, Bd>(&self, addr: &SocketAddr, handle: &Handle, new_service: S) -> ::Result<Serve<AddrIncoming, S>>
     where
         S: NewService<ReqBody=Body, ResBody=Bd>,
@@ -465,6 +466,7 @@ where
 
 // ===== impl SpawnAll =====
 
+#[cfg(feature = "runtime")]
 impl<S> SpawnAll<AddrIncoming, S> {
     pub(super) fn local_addr(&self) -> SocketAddr {
         self.serve.incoming.local_addr()
